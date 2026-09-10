@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 // Expanded valid word list for checking real words
 const VALID_WORDS = [
@@ -39,12 +40,16 @@ export default function WordlePage() {
   const [guesses, setGuesses] = useState(Array(6).fill(''));
   const [currentGuess, setCurrentGuess] = useState('');
   const [currentRow, setCurrentRow] = useState(0);
-  const [gameStatus, setGameStatus] = useState('playing'); // 'playing', 'won', 'lost'
+  const [gameStatus, setGameStatus] = useState('playing');
   const [shake, setShake] = useState(false);
   const [flashRed, setFlashRed] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem('plorine_theme') || 'dark';
+    setTheme(savedTheme);
+
     const randomWord = VALID_WORDS[Math.floor(Math.random() * VALID_WORDS.length)];
     setSolution(randomWord);
   }, []);
@@ -56,7 +61,6 @@ export default function WordlePage() {
     }, 2500);
   };
 
-  // Track letter status for the virtual keyboard
   const getLetterStatuses = () => {
     const statuses = {};
     guesses.forEach((guess) => {
@@ -79,7 +83,6 @@ export default function WordlePage() {
   const submitGuess = () => {
     if (currentGuess.length !== 5) return;
 
-    // Check if it's a real word from our list
     if (!VALID_WORDS.includes(currentGuess)) {
       setShake(true);
       setFlashRed(true);
@@ -152,12 +155,14 @@ export default function WordlePage() {
     }
   };
 
+  const isDark = theme === 'dark';
+
   const getBoxStyle = (rowIdx, colIdx) => {
     const guess = guesses[rowIdx];
     const letter = guess ? guess[colIdx] : (rowIdx === currentRow ? currentGuess[colIdx] : '');
     
-    let bg = '#151421';
-    let border = '2px solid rgba(255,255,255,0.1)';
+    let bg = isDark ? '#151421' : '#ffffff';
+    let border = isDark ? '2px solid rgba(255,255,255,0.1)' : '2px solid rgba(0,0,0,0.1)';
 
     if (rowIdx === currentRow && flashRed) {
       bg = '#7f1d1d';
@@ -170,8 +175,8 @@ export default function WordlePage() {
         bg = '#eab308';
         border = '2px solid #eab308';
       } else {
-        bg = '#374151';
-        border = '2px solid #374151';
+        bg = isDark ? '#374151' : '#d1d5db';
+        border = `2px solid ${bg}`;
       }
     } else if (letter) {
       border = '2px solid rgba(167, 139, 250, 0.5)';
@@ -188,21 +193,30 @@ export default function WordlePage() {
       justifyContent: 'center',
       fontSize: '1.6rem',
       fontWeight: 'bold',
-      color: '#fffffe',
+      color: isDark || guess ? '#fffffe' : '#151421',
       transition: 'all 0.15s ease'
     };
   };
 
   const getKeyStyle = (char) => {
     const status = letterStatuses[char];
-    let bg = '#222131';
-    if (status === 'correct') bg = '#22c55e';
-    else if (status === 'present') bg = '#eab308';
-    else if (status === 'absent') bg = '#4b5563';
+    let bg = isDark ? '#222131' : '#e4e4e7';
+    let textColor = isDark ? '#fffffe' : '#151421';
+
+    if (status === 'correct') {
+      bg = '#22c55e';
+      textColor = '#fffffe';
+    } else if (status === 'present') {
+      bg = '#eab308';
+      textColor = '#fffffe';
+    } else if (status === 'absent') {
+      bg = isDark ? '#4b5563' : '#a1a1aa';
+      textColor = '#fffffe';
+    }
 
     return {
       background: bg,
-      color: '#fffffe',
+      color: textColor,
       border: 'none',
       padding: '12px 14px',
       borderRadius: '10px',
@@ -215,8 +229,8 @@ export default function WordlePage() {
   return (
     <main style={{
       minHeight: '100vh',
-      backgroundColor: '#0f0e17',
-      color: '#fffffe',
+      backgroundColor: isDark ? '#0f0e17' : '#f4f4f6',
+      color: isDark ? '#fffffe' : '#151421',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -258,7 +272,7 @@ export default function WordlePage() {
 
       {/* Top bar */}
       <div style={{ width: '100%', maxWidth: '420px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <a href="/" style={{ color: '#a7a9be', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</a>
+        <Link href="/" style={{ color: isDark ? '#a7a9be' : '#52525b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</Link>
         <h1 style={{ fontSize: '1.6rem', fontWeight: '900', background: 'linear-gradient(135deg, #a78bfa, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Wordle</h1>
         <div style={{ width: '50px' }}></div>
       </div>
@@ -283,16 +297,16 @@ export default function WordlePage() {
       {/* Game Over Modal */}
       {gameStatus !== 'playing' && (
         <div style={{
-          background: '#151421',
-          border: '1px solid rgba(167, 139, 250, 0.3)',
+          background: isDark ? '#151421' : '#ffffff',
+          border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.3)' : 'rgba(0,0,0,0.1)'}`,
           padding: '24px 32px',
           borderRadius: '20px',
           textAlign: 'center',
           marginBottom: '20px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+          boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
         }}>
-          <h2 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>{gameStatus === 'won' ? '🎉 You Got It!' : `😢 Game Over!`}</h2>
-          <p style={{ color: '#a7a9be', marginBottom: '16px' }}>The word was: <strong style={{ color: '#a78bfa' }}>{solution}</strong></p>
+          <h2 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>{gameStatus === 'won' ? '🎉 You Got It!' : '😢 Game Over!'}</h2>
+          <p style={{ color: isDark ? '#a7a9be' : '#52525b', marginBottom: '16px' }}>The word was: <strong style={{ color: '#a78bfa' }}>{solution}</strong></p>
           <button onClick={() => window.location.reload()} style={{
             background: 'linear-gradient(135deg, #a78bfa, #f472b6)',
             color: '#0f0e17',

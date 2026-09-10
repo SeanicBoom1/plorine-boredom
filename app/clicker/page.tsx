@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import confetti from 'canvas-confetti';
 
 export default function ClickerPage() {
@@ -9,14 +10,18 @@ export default function ClickerPage() {
   const [autoClickers, setAutoClickers] = useState(0);
   const [cursorCost, setCursorCost] = useState(15);
   const [powerCost, setPowerCost] = useState(50);
+  const [theme, setTheme] = useState('dark');
 
   // Anti-cheat / Auto-clicker detector states
   const [isLocked, setIsLocked] = useState(false);
   const [warningMsg, setWarningMsg] = useState('');
   const clickTimesRef = useRef([]);
 
-  // Load saved progress from localStorage on mount
+  // Load saved progress and theme from localStorage on mount
   useEffect(() => {
+    const savedTheme = localStorage.getItem('plorine_theme') || 'dark';
+    setTheme(savedTheme);
+
     const savedScore = localStorage.getItem('plorine_clicker_score');
     const savedAuto = localStorage.getItem('plorine_clicker_auto');
     const savedPower = localStorage.getItem('plorine_clicker_power');
@@ -100,11 +105,13 @@ export default function ClickerPage() {
     }
   };
 
+  const isDark = theme === 'dark';
+
   return (
     <main style={{
       minHeight: '100vh',
-      backgroundColor: '#0f0e17',
-      color: '#fffffe',
+      backgroundColor: isDark ? '#0f0e17' : '#f4f4f6',
+      color: isDark ? '#fffffe' : '#151421',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -132,27 +139,27 @@ export default function ClickerPage() {
 
       {/* Top bar */}
       <div style={{ width: '100%', maxWidth: '440px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <a href="/" style={{ color: '#a7a9be', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</a>
+        <Link href='/' style={{ color: isDark ? '#a7a9be' : '#52525b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</Link>
         <h1 style={{ fontSize: '1.6rem', fontWeight: '900', background: 'linear-gradient(135deg, #a78bfa, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Clicker</h1>
         <div style={{ width: '50px' }}></div>
       </div>
 
       {/* Score Card */}
       <div style={{
-        background: '#151421',
-        border: '1px solid rgba(167, 139, 250, 0.2)',
+        background: isDark ? '#151421' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.2)' : 'rgba(0,0,0,0.1)'}`,
         borderRadius: '24px',
         padding: '24px',
         width: '100%',
         maxWidth: '440px',
         textAlign: 'center',
         marginBottom: '20px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
       }}>
         <div style={{ fontSize: '2.5rem', fontWeight: '900', color: '#a78bfa', marginBottom: '4px' }}>
           {score.toLocaleString()}
         </div>
-        <div style={{ color: '#a7a9be', fontSize: '0.95rem' }}>
+        <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.95rem' }}>
           Pixels &bull; {autoClickers} auto/sec
         </div>
       </div>
@@ -184,28 +191,48 @@ export default function ClickerPage() {
 
       {/* Upgrades Section */}
       <div style={{ width: '100%', maxWidth: '440px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#a7a9be', marginBottom: '4px' }}>Upgrades</h2>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: isDark ? '#a7a9be' : '#52525b', marginBottom: '4px' }}>Upgrades</h2>
         
         {/* Auto Clicker Upgrade */}
         <button
           onClick={buyAutoClicker}
           disabled={score < cursorCost}
           style={{
-            background: '#151421',
-            border: '1px solid rgba(167, 139, 250, 0.2)',
+            background: isDark ? '#151421' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.2)' : 'rgba(0,0,0,0.1)'}`,
             borderRadius: '16px',
             padding: '16px 20px',
-            color: '#fffffe',
+            color: isDark ? '#fffffe' : '#151421',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             cursor: score >= cursorCost ? 'pointer' : 'not-allowed',
             opacity: score >= cursorCost ? 1 : 0.6,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}
         >
-          <div style={{ textAlign: 'left' }}>
-            <div style={{ fontWeight: '700', fontSize: '1rem' }}>🤖 Auto-Cursor</div>
-            <div style={{ color: '#a7a9be', fontSize: '0.85rem' }}>Generates +1 pixel/sec</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left' }}>
+            <div style={{ 
+              background: isDark ? 'rgba(167, 139, 250, 0.1)' : 'rgba(167, 139, 250, 0.15)', 
+              padding: '10px', 
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#a78bfa'
+            }}>
+              <svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                <rect x='3' y='11' width='18' height='10' rx='2'></rect>
+                <circle cx='12' cy='5' r='2'></circle>
+                <path d='M12 7v4'></path>
+                <line x1='8' y1='15' x2='8' y2='17'></line>
+                <line x1='16' y1='15' x2='16' y2='17'></line>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontWeight: '700', fontSize: '1rem' }}>Auto-Cursor</div>
+              <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.85rem' }}>Generates +1 pixel/sec</div>
+            </div>
           </div>
           <div style={{ fontWeight: '800', color: '#f472b6' }}>{cursorCost} Pixels</div>
         </button>
@@ -215,21 +242,37 @@ export default function ClickerPage() {
           onClick={buyPower}
           disabled={score < powerCost}
           style={{
-            background: '#151421',
-            border: '1px solid rgba(167, 139, 250, 0.2)',
+            background: isDark ? '#151421' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.2)' : 'rgba(0,0,0,0.1)'}`,
             borderRadius: '16px',
             padding: '16px 20px',
-            color: '#fffffe',
+            color: isDark ? '#fffffe' : '#151421',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             cursor: score >= powerCost ? 'pointer' : 'not-allowed',
             opacity: score >= powerCost ? 1 : 0.6,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}
         >
-          <div style={{ textAlign: 'left' }}>
-            <div style={{ fontWeight: '700', fontSize: '1rem' }}>⚡ Power Click</div>
-            <div style={{ color: '#a7a9be', fontSize: '0.85rem' }}>+{clickPower} power per click</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left' }}>
+            <div style={{ 
+              background: isDark ? 'rgba(244, 114, 182, 0.1)' : 'rgba(244, 114, 182, 0.15)', 
+              padding: '10px', 
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#f472b6'
+            }}>
+              <svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+                <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'></polygon>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontWeight: '700', fontSize: '1rem' }}>Power Click</div>
+              <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.85rem' }}>+{clickPower} power per click</div>
+            </div>
           </div>
           <div style={{ fontWeight: '800', color: '#f472b6' }}>{powerCost} Pixels</div>
         </button>

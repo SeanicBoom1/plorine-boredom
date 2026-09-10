@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
 const COLORS = [
   { name: 'Red', hex: '#ef4444' },
@@ -19,8 +20,12 @@ export default function ColorMatchPage() {
   const [timeLeft, setTimeLeft] = useState(5);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem('plorine_theme') || 'dark';
+    setTheme(savedTheme);
+
     const saved = localStorage.getItem('plorine_colormatch_highscore');
     if (saved) setHighScore(Number(saved));
   }, []);
@@ -79,11 +84,13 @@ export default function ColorMatchPage() {
     }
   };
 
+  const isDark = theme === 'dark';
+
   return (
     <main style={{
       minHeight: '100vh',
-      backgroundColor: '#0f0e17',
-      color: '#fffffe',
+      backgroundColor: isDark ? '#0f0e17' : '#f4f4f6',
+      color: isDark ? '#fffffe' : '#151421',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -92,15 +99,15 @@ export default function ColorMatchPage() {
     }}>
       {/* Top bar */}
       <div style={{ width: '100%', maxWidth: '380px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <a href="/" style={{ color: '#a7a9be', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</a>
+        <Link href='/' style={{ color: isDark ? '#a7a9be' : '#52525b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</Link>
         <h1 style={{ fontSize: '1.6rem', fontWeight: '900', background: 'linear-gradient(135deg, #a78bfa, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Color Match</h1>
         <div style={{ width: '40px' }} />
       </div>
 
       {/* Score Board */}
       <div style={{
-        background: '#151421',
-        border: '1px solid rgba(167, 139, 250, 0.2)',
+        background: isDark ? '#151421' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.2)' : 'rgba(0,0,0,0.1)'}`,
         borderRadius: '16px',
         padding: '12px 24px',
         width: '100%',
@@ -109,14 +116,14 @@ export default function ColorMatchPage() {
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '20px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
       }}>
         <div>
-          <div style={{ color: '#a7a9be', fontSize: '0.8rem' }}>SCORE</div>
+          <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.8rem' }}>SCORE</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#a78bfa' }}>{score}</div>
         </div>
         <div>
-          <div style={{ color: '#a7a9be', fontSize: '0.8rem', textAlign: 'right' }}>HIGH SCORE</div>
+          <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.8rem', textAlign: 'right' }}>HIGH SCORE</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#f472b6', textAlign: 'right' }}>{highScore}</div>
         </div>
       </div>
@@ -125,8 +132,8 @@ export default function ColorMatchPage() {
       <div style={{
         width: '380px',
         height: '380px',
-        backgroundColor: '#151421',
-        border: '2px solid rgba(167, 139, 250, 0.3)',
+        backgroundColor: isDark ? '#151421' : '#ffffff',
+        border: `2px solid ${isDark ? 'rgba(167, 139, 250, 0.3)' : 'rgba(0,0,0,0.15)'}`,
         borderRadius: '20px',
         padding: '20px',
         display: 'flex',
@@ -134,13 +141,13 @@ export default function ColorMatchPage() {
         alignItems: 'center',
         justifyContent: 'space-between',
         position: 'relative',
-        boxShadow: '0 15px 35px rgba(0,0,0,0.4)',
+        boxShadow: '0 15px 35px rgba(0,0,0,0.2)',
         overflow: 'hidden'
       }}>
         {isPlaying ? (
           <>
             {/* Timer Bar */}
-            <div style={{ width: '100%', height: '6px', backgroundColor: '#1f1e2e', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '6px', backgroundColor: isDark ? '#1f1e2e' : '#e4e4e7', borderRadius: '3px', overflow: 'hidden' }}>
               <div style={{
                 width: `${(timeLeft / 5) * 100}%`,
                 height: '100%',
@@ -151,7 +158,7 @@ export default function ColorMatchPage() {
 
             {/* Target Display */}
             <div style={{ textAlign: 'center' }}>
-              <div style={{ color: '#a7a9be', fontSize: '0.9rem', marginBottom: '8px' }}>MATCH THIS COLOR</div>
+              <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.9rem', marginBottom: '8px' }}>MATCH THIS COLOR</div>
               <div style={{ fontSize: '2.2rem', fontWeight: '900', color: targetColor.hex }}>
                 {targetColor.name}
               </div>
@@ -191,10 +198,10 @@ export default function ColorMatchPage() {
             gap: '14px',
             textAlign: 'center'
           }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fffffe' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: isDark ? '#fffffe' : '#151421' }}>
               {gameOver ? 'Game Over!' : 'Color Match'}
             </h2>
-            {gameOver && <p style={{ color: '#a7a9be', fontSize: '0.95rem' }}>Final Score: {score}</p>}
+            {gameOver && <p style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.95rem' }}>Final Score: {score}</p>}
             <button
               onClick={startGame}
               style={{

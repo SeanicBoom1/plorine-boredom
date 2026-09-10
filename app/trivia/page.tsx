@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 const RAW_QUESTIONS = [
   { question: 'What is the capital of Australia?', options: ['Sydney', 'Melbourne', 'Canberra', 'Brisbane'], answer: 'Canberra' },
@@ -60,7 +61,6 @@ const RAW_QUESTIONS = [
   { question: 'What is the largest island in the world?', options: ['Madagascar', 'Borneo', 'Greenland', 'New Guinea'], answer: 'Greenland' }
 ];
 
-// Helper to shuffle array randomly
 const shuffleArray = (array) => {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -76,8 +76,8 @@ export default function TriviaPage() {
   const [score, setScore] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [theme, setTheme] = useState('dark');
 
-  // Shuffle questions and their options on mount/restart
   const startNewGame = () => {
     const randomizedQuestions = shuffleArray(RAW_QUESTIONS).map((q) => ({
       ...q,
@@ -91,12 +91,15 @@ export default function TriviaPage() {
   };
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem('plorine_theme') || 'dark';
+    setTheme(savedTheme);
     startNewGame();
   }, []);
 
   if (questions.length === 0) return null;
 
   const currentQ = questions[currentIndex];
+  const isDark = theme === 'dark';
 
   const handleOptionClick = (option) => {
     if (selectedOption !== null) return;
@@ -121,8 +124,8 @@ export default function TriviaPage() {
   return (
     <main style={{
       minHeight: '100vh',
-      backgroundColor: '#0f0e17',
-      color: '#fffffe',
+      backgroundColor: isDark ? '#0f0e17' : '#f4f4f6',
+      color: isDark ? '#fffffe' : '#151421',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -132,7 +135,7 @@ export default function TriviaPage() {
     }}>
       {/* Top bar */}
       <div style={{ width: '100%', maxWidth: '440px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <a href="/" style={{ color: '#a7a9be', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</a>
+        <Link href='/' style={{ color: isDark ? '#a7a9be' : '#52525b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</Link>
         <h1 style={{ fontSize: '1.6rem', fontWeight: '900', background: 'linear-gradient(135deg, #a78bfa, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Trivia</h1>
         <div style={{ width: '50px' }}></div>
       </div>
@@ -140,19 +143,19 @@ export default function TriviaPage() {
       {!isFinished ? (
         <div style={{ width: '100%', maxWidth: '440px' }}>
           {/* Progress Indicator */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', color: '#a7a9be', fontSize: '0.9rem', fontWeight: '600' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.9rem', fontWeight: '600' }}>
             <span>Question {currentIndex + 1} of {questions.length}</span>
             <span>Score: {score}</span>
           </div>
 
           {/* Question Card */}
           <div style={{
-            background: '#151421',
-            border: '1px solid rgba(167, 139, 250, 0.2)',
+            background: isDark ? '#151421' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.2)' : 'rgba(0,0,0,0.1)'}`,
             borderRadius: '24px',
             padding: '28px',
             marginBottom: '20px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+            boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
           }}>
             <h2 style={{ fontSize: '1.25rem', lineHeight: '1.5', fontWeight: '700' }}>{currentQ.question}</h2>
           </div>
@@ -160,8 +163,8 @@ export default function TriviaPage() {
           {/* Options Grid */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {currentQ.options.map((option, idx) => {
-              let bg = '#151421';
-              let border = '1px solid rgba(255, 255, 255, 0.05)';
+              let bg = isDark ? '#151421' : '#ffffff';
+              let border = isDark ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.1)';
 
               if (selectedOption !== null) {
                 if (option === currentQ.answer) {
@@ -180,7 +183,7 @@ export default function TriviaPage() {
                   style={{
                     background: bg,
                     border: border,
-                    color: '#fffffe',
+                    color: selectedOption !== null && (option === currentQ.answer || option === selectedOption) ? '#fffffe' : (isDark ? '#fffffe' : '#151421'),
                     padding: '16px 20px',
                     borderRadius: '16px',
                     fontSize: '1rem',
@@ -200,18 +203,18 @@ export default function TriviaPage() {
       ) : (
         /* Completion Card */
         <div style={{
-          background: '#151421',
-          border: '1px solid rgba(167, 139, 250, 0.3)',
+          background: isDark ? '#151421' : '#ffffff',
+          border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.3)' : 'rgba(0,0,0,0.1)'}`,
           borderRadius: '24px',
           padding: '40px 32px',
           width: '100%',
           maxWidth: '440px',
           textAlign: 'center',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+          boxShadow: '0 20px 50px rgba(0,0,0,0.2)'
         }}>
           <h2 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '12px' }}>Quiz Complete! 🎉</h2>
-          <p style={{ color: '#a7a9be', fontSize: '1.1rem', marginBottom: '24px' }}>
-            You scored <strong style={{ color: '#a78bfa' }}>{score}</strong> out of <strong style={{ color: '#fffffe' }}>{questions.length}</strong>
+          <p style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '1.1rem', marginBottom: '24px' }}>
+            You scored <strong style={{ color: '#a78bfa' }}>{score}</strong> out of <strong style={{ color: isDark ? '#fffffe' : '#151421' }}>{questions.length}</strong>
           </p>
           <button
             onClick={startNewGame}

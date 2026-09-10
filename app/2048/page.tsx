@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
 const BOARD_SIZE = 4;
 
@@ -14,9 +15,13 @@ export default function Game2048Page() {
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   const [keepPlaying, setKeepPlaying] = useState(false);
+  const [theme, setTheme] = useState('dark');
 
-  // Load high score and initialize random tiles on client mount only
+  // Load high score, theme, and initialize random tiles on client mount only
   useEffect(() => {
+    const savedTheme = localStorage.getItem('plorine_theme') || 'dark';
+    setTheme(savedTheme);
+
     const saved = localStorage.getItem('plorine_2048_highscore');
     if (saved) setHighScore(Number(saved));
 
@@ -182,28 +187,47 @@ export default function Game2048Page() {
     setKeepPlaying(false);
   };
 
+  const isDark = theme === 'dark';
+
   const getTileStyle = (val) => {
-    switch (val) {
-      case 2: return { background: '#1f1e2e', color: '#a78bfa' };
-      case 4: return { background: '#252338', color: '#f472b6' };
-      case 8: return { background: '#3b2d54', color: '#fbcfe8' };
-      case 16: return { background: '#4c2548', color: '#f472b6' };
-      case 32: return { background: '#6b2140', color: '#fff' };
-      case 64: return { background: '#9f1239', color: '#fff' };
-      case 128: return { background: '#7c3aed', color: '#fff' };
-      case 256: return { background: '#6d28d9', color: '#fff' };
-      case 512: return { background: '#5b21b6', color: '#fff' };
-      case 1024: return { background: '#4c1d95', color: '#fff' };
-      case 2048: return { background: 'linear-gradient(135deg, #a78bfa, #f472b6)', color: '#0f0e17' };
-      default: return val > 2048 ? { background: '#f472b6', color: '#0f0e17' } : { background: '#151421', color: 'transparent' };
+    if (isDark) {
+      switch (val) {
+        case 2: return { background: '#1f1e2e', color: '#a78bfa' };
+        case 4: return { background: '#252338', color: '#f472b6' };
+        case 8: return { background: '#3b2d54', color: '#fbcfe8' };
+        case 16: return { background: '#4c2548', color: '#f472b6' };
+        case 32: return { background: '#6b2140', color: '#fff' };
+        case 64: return { background: '#9f1239', color: '#fff' };
+        case 128: return { background: '#7c3aed', color: '#fff' };
+        case 256: return { background: '#6d28d9', color: '#fff' };
+        case 512: return { background: '#5b21b6', color: '#fff' };
+        case 1024: return { background: '#4c1d95', color: '#fff' };
+        case 2048: return { background: 'linear-gradient(135deg, #a78bfa, #f472b6)', color: '#0f0e17' };
+        default: return val > 2048 ? { background: '#f472b6', color: '#0f0e17' } : { background: '#151421', color: 'transparent' };
+      }
+    } else {
+      switch (val) {
+        case 2: return { background: '#e4e4e7', color: '#7c3aed' };
+        case 4: return { background: '#fce7f3', color: '#db2777' };
+        case 8: return { background: '#fbcfe8', color: '#be185d' };
+        case 16: return { background: '#f472b6', color: '#fff' };
+        case 32: return { background: '#e11d48', color: '#fff' };
+        case 64: return { background: '#be123c', color: '#fff' };
+        case 128: return { background: '#8b5cf6', color: '#fff' };
+        case 256: return { background: '#7c3aed', color: '#fff' };
+        case 512: return { background: '#6d28d9', color: '#fff' };
+        case 1024: return { background: '#5b21b6', color: '#fff' };
+        case 2048: return { background: 'linear-gradient(135deg, #a78bfa, #f472b6)', color: '#ffffff' };
+        default: return val > 2048 ? { background: '#f472b6', color: '#ffffff' } : { background: '#e4e4e7', color: 'transparent' };
+      }
     }
   };
 
   return (
     <main style={{
       minHeight: '100vh',
-      backgroundColor: '#0f0e17',
-      color: '#fffffe',
+      backgroundColor: isDark ? '#0f0e17' : '#f4f4f6',
+      color: isDark ? '#fffffe' : '#151421',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -212,17 +236,18 @@ export default function Game2048Page() {
     }}>
       {/* Top bar */}
       <div style={{ width: '100%', maxWidth: '380px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <a href="/" style={{ color: '#a7a9be', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</a>
+        <Link href='/' style={{ color: isDark ? '#a7a9be' : '#52525b', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 'bold' }}>← Back</Link>
         <h1 style={{ fontSize: '1.6rem', fontWeight: '900', background: 'linear-gradient(135deg, #a78bfa, #f472b6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Mini 2048</h1>
         <button onClick={restartGame} style={{
-          background: '#151421',
-          border: '1px solid rgba(167, 139, 250, 0.3)',
+          background: isDark ? '#151421' : '#ffffff',
+          border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.3)' : 'rgba(0,0,0,0.15)'}`,
           color: '#a78bfa',
           padding: '6px 12px',
           borderRadius: '12px',
           fontSize: '0.8rem',
           fontWeight: 'bold',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
         }}>
           Reset
         </button>
@@ -230,8 +255,8 @@ export default function Game2048Page() {
 
       {/* Score Board */}
       <div style={{
-        background: '#151421',
-        border: '1px solid rgba(167, 139, 250, 0.2)',
+        background: isDark ? '#151421' : '#ffffff',
+        border: `1px solid ${isDark ? 'rgba(167, 139, 250, 0.2)' : 'rgba(0,0,0,0.1)'}`,
         borderRadius: '16px',
         padding: '12px 24px',
         width: '100%',
@@ -240,14 +265,14 @@ export default function Game2048Page() {
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '20px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
       }}>
         <div>
-          <div style={{ color: '#a7a9be', fontSize: '0.8rem' }}>SCORE</div>
+          <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.8rem' }}>SCORE</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#a78bfa' }}>{score}</div>
         </div>
         <div>
-          <div style={{ color: '#a7a9be', fontSize: '0.8rem', textAlign: 'right' }}>HIGH SCORE</div>
+          <div style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.8rem', textAlign: 'right' }}>HIGH SCORE</div>
           <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#f472b6', textAlign: 'right' }}>{highScore}</div>
         </div>
       </div>
@@ -256,8 +281,8 @@ export default function Game2048Page() {
       <div style={{
         width: '380px',
         height: '380px',
-        backgroundColor: '#151421',
-        border: '2px solid rgba(167, 139, 250, 0.3)',
+        backgroundColor: isDark ? '#151421' : '#ffffff',
+        border: `2px solid ${isDark ? 'rgba(167, 139, 250, 0.3)' : 'rgba(0,0,0,0.15)'}`,
         borderRadius: '20px',
         padding: '12px',
         display: 'grid',
@@ -265,7 +290,7 @@ export default function Game2048Page() {
         gridTemplateRows: 'repeat(4, 1fr)',
         gap: '12px',
         position: 'relative',
-        boxShadow: '0 15px 35px rgba(0,0,0,0.4)',
+        boxShadow: '0 15px 35px rgba(0,0,0,0.2)',
         overflow: 'hidden'
       }}>
         {board.flat().map((val, idx) => {
@@ -298,7 +323,7 @@ export default function Game2048Page() {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(15, 14, 23, 0.88)',
+            backgroundColor: isDark ? 'rgba(15, 14, 23, 0.88)' : 'rgba(255, 255, 255, 0.88)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             flexDirection: 'column',
@@ -307,7 +332,7 @@ export default function Game2048Page() {
             gap: '14px',
             zIndex: 10
           }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fffffe' }}>You Made 2048! 🎉</h2>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: isDark ? '#fffffe' : '#151421' }}>You Made 2048! 🎉</h2>
             <button
               onClick={() => setKeepPlaying(true)}
               style={{
@@ -327,7 +352,7 @@ export default function Game2048Page() {
               onClick={restartGame}
               style={{
                 background: 'transparent',
-                color: '#a7a9be',
+                color: isDark ? '#a7a9be' : '#52525b',
                 border: 'none',
                 fontSize: '0.9rem',
                 cursor: 'pointer',
@@ -346,7 +371,7 @@ export default function Game2048Page() {
             left: 0,
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(15, 14, 23, 0.88)',
+            backgroundColor: isDark ? 'rgba(15, 14, 23, 0.88)' : 'rgba(255, 255, 255, 0.88)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             flexDirection: 'column',
@@ -355,8 +380,8 @@ export default function Game2048Page() {
             gap: '14px',
             zIndex: 10
           }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fffffe' }}>Game Over!</h2>
-            <p style={{ color: '#a7a9be', fontSize: '0.95rem' }}>Score: {score}</p>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: isDark ? '#fffffe' : '#151421' }}>Game Over!</h2>
+            <p style={{ color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.95rem' }}>Score: {score}</p>
             <button
               onClick={restartGame}
               style={{
@@ -376,8 +401,8 @@ export default function Game2048Page() {
         )}
       </div>
 
-      <div style={{ marginTop: '20px', color: '#a7a9be', fontSize: '0.9rem', textAlign: 'center' }}>
-        Use <strong style={{ color: '#fffffe' }}>Arrow Keys</strong> or <strong style={{ color: '#fffffe' }}>WASD</strong> to slide tiles.
+      <div style={{ marginTop: '20px', color: isDark ? '#a7a9be' : '#52525b', fontSize: '0.9rem', textAlign: 'center' }}>
+        Use <strong style={{ color: isDark ? '#fffffe' : '#151421' }}>Arrow Keys</strong> or <strong style={{ color: isDark ? '#fffffe' : '#151421' }}>WASD</strong> to slide tiles.
       </div>
     </main>
   );

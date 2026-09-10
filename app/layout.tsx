@@ -1,29 +1,57 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+'use client';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { useEffect, useState } from 'react';
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isUpsideDown, setIsUpsideDown] = useState(false);
 
-export const metadata: Metadata = {
-  title: "Plorine Boredom",
-  description: "A website to cure our boredom.",
-};
+  useEffect(() => {
+    const konamiCode = [
+      'ArrowUp',
+      'ArrowUp',
+      'ArrowDown',
+      'ArrowDown',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowLeft',
+      'ArrowRight',
+      'b',
+      'a',
+    ];
+    let cursor = 0;
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === konamiCode[cursor].toLowerCase()) {
+        cursor++;
+        if (cursor === konamiCode.length) {
+          setIsUpsideDown((prev) => !prev);
+          cursor = 0;
+        }
+      } else {
+        cursor = 0;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body
+        style={{
+          transform: isUpsideDown ? 'rotate(180deg)' : 'none',
+          transition: 'transform 0.5s ease',
+          minHeight: '100vh',
+          margin: 0,
+        }}
+      >
+        {children}
+      </body>
     </html>
   );
 }
