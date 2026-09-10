@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
-import PottedPlant from "@/components/PottedPlant";
 
 const FONTS = [
   'system-ui, -apple-system, sans-serif',
@@ -37,7 +36,7 @@ export default function Home() {
     const savedUser = localStorage.getItem('plorine_username');
     if (savedUser) {
       setUsername(savedUser);
-      setIsModalOpen(false);
+      setIsModalOpen(false); // Explicitly keep modal closed if logged in
     } else {
       setIsModalOpen(true);
     }
@@ -354,7 +353,7 @@ export default function Home() {
       </div>
 
       {/* Header section with randomly shifting font title */}
-      <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '600px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '600px' }}>
         <h1 style={{ 
           fontSize: '3.8rem', 
           fontWeight: '900', 
@@ -373,7 +372,7 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Toy shelf grid layout + Potted Plant widget */}
+      {/* Toy shelf grid layout */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -429,9 +428,6 @@ export default function Home() {
             </a>
           );
         })}
-
-        {/* Interactive Potted Plant Widget */}
-        <PottedPlant />
       </div>
 
       <footer style={{ color: '#6b6e82', fontSize: '0.9rem' }}>
